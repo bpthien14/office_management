@@ -16,6 +16,30 @@ class RoomBooking extends BaseModel
     ];
     
     /**
+     * Lấy tên bảng
+     */
+    public function getTable()
+    {
+        return $this->table;
+    }
+    
+    /**
+     * Thực thi query và trả về 1 record
+     */
+    public function query($sql, $params = [])
+    {
+        return $this->db->fetch($sql, $params);
+    }
+    
+    /**
+     * Thực thi query và trả về nhiều records
+     */
+    public function queryAll($sql, $params = [])
+    {
+        return $this->db->fetchAll($sql, $params);
+    }
+    
+    /**
      * Lấy tất cả đặt phòng họp
      */
     public function getAll()

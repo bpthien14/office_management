@@ -238,6 +238,22 @@ class DeviceBorrow extends BaseModel
     }
     
     /**
+     * Lấy tất cả lịch sử mượn thiết bị (bao gồm tất cả trạng thái)
+     */
+    public function getAllBorrowHistory()
+    {
+        $sql = "SELECT db.*, bd.device_id, d.device_name, d.description, d.quantity,
+                       e.fullname, e.department, bd.note
+                FROM {$this->table} db
+                INNER JOIN DEVICE_BORROW_DETAILS bd ON db.borrow_id = bd.borrow_id
+                INNER JOIN DEVICES d ON bd.device_id = d.device_id
+                LEFT JOIN EMPLOYEES e ON db.employee_id = e.employee_id
+                ORDER BY db.borrow_date DESC, db.created_at DESC";
+        
+        return $this->db->fetchAll($sql);
+    }
+    
+    /**
      * Lấy danh sách đơn mượn thiết bị chờ duyệt
      */
     public function getPendingBorrows()

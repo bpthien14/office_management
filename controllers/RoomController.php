@@ -99,10 +99,21 @@ class RoomController extends BaseController
                 $this->redirect('/rooms');
             }
             
+            // Get room statistics
+            $roomStats = $this->getRoomStats($id);
+            
+            // Get recent bookings for this room
+            $recentBookings = $this->getRecentBookings($id);
+            
+            // Get all bookings for this room (for calendar)
+            $roomBookings = $this->getRoomBookings($id);
+            
             $data = [
-                'title' => 'Chi tiết phòng họp',
+                'title' => 'Chi tiết phòng họp - ' . $room['room_name'],
                 'room' => $room,
-                'bookings' => $this->roomBookingModel->getByRoom($id)
+                'roomStats' => $roomStats,
+                'recentBookings' => $recentBookings,
+                'roomBookings' => $roomBookings
             ];
             
             $this->view('rooms/show', $data);
@@ -110,6 +121,68 @@ class RoomController extends BaseController
         } catch (Exception $e) {
             $this->flash('error', 'Có lỗi xảy ra: ' . $e->getMessage());
             $this->redirect('/rooms');
+        }
+    }
+    
+    /**
+     * Lấy thống kê phòng họp
+     */
+    private function getRoomStats($roomId)
+    {
+        try {
+            $sql = "SELECT 
+                        COUNT(*) as total_bookings,
+                        SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_bookings,
+                        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_bookings,
+                        SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_bookings
+                    FROM {$this->roomBookingModel->getTable()} 
+                    WHERE room_id = ?";
+            
+            return $this->roomBookingModel->query($sql, [$roomId]);
+        } catch (Exception $e) {
+            return [
+                'total_bookings' => 0,
+                'approved_bookings' => 0,
+                'pending_bookings' => 0,
+                'rejected_bookings' => 0
+            ];
+        }
+    }
+    
+    /**
+     * Lấy lịch sử đặt phòng gần đây
+     */
+    private function getRecentBookings($roomId)
+    {
+        try {
+            $sql = "SELECT rb.*, e.fullname, e.department
+                    FROM {$this->roomBookingModel->getTable()} rb
+                    LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
+                    WHERE rb.room_id = ?
+                    ORDER BY rb.booking_date DESC, rb.start_time DESC
+                    LIMIT 10";
+            
+            return $this->roomBookingModel->queryAll($sql, [$roomId]);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Lấy tất cả booking của phòng (cho calendar)
+     */
+    private function getRoomBookings($roomId)
+    {
+        try {
+            $sql = "SELECT rb.*, e.fullname, e.department
+                    FROM {$this->roomBookingModel->getTable()} rb
+                    LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
+                    WHERE rb.room_id = ?
+                    ORDER BY rb.booking_date ASC, rb.start_time ASC";
+            
+            return $this->roomBookingModel->queryAll($sql, [$roomId]);
+        } catch (Exception $e) {
+            return [];
         }
     }
     

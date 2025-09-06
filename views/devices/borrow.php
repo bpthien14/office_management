@@ -112,12 +112,18 @@ $content = '
                             <tbody>
                                 ' . implode('', array_map(function($borrow) {
                                     $statusClass = [
-                                        'borrowed' => 'warning',
+                                        'pending' => 'warning',
+                                        'approved' => 'success',
+                                        'rejected' => 'danger',
+                                        'borrowed' => 'info',
                                         'returned' => 'success',
                                         'overdue' => 'danger'
                                     ][$borrow['status']] ?? 'secondary';
                                     
                                     $statusText = [
+                                        'pending' => 'Chờ duyệt',
+                                        'approved' => 'Đã duyệt',
+                                        'rejected' => 'Bị từ chối',
                                         'borrowed' => 'Đang mượn',
                                         'returned' => 'Đã trả',
                                         'overdue' => 'Quá hạn'

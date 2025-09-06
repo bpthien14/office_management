@@ -71,7 +71,7 @@ class DeviceController extends BaseController
                 'title' => 'Mượn thiết bị',
                 'devices' => $this->deviceModel->getAll(),
                 'employees' => $this->employeeModel->getAll(),
-                'borrow_history' => $this->deviceBorrowModel->getBorrowedDevices()
+                'borrow_history' => $this->deviceBorrowModel->getAllBorrowHistory()
             ];
             
             $this->view('devices/borrow', $data);
