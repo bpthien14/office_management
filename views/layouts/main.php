@@ -10,7 +10,7 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="/office_management/assets/css/style.css" rel="stylesheet">
+    <link href="/assets/css/style.css" rel="stylesheet">
     
     <?php if (isset($additionalCSS)): ?>
         <?php foreach ($additionalCSS as $css): ?>
@@ -68,17 +68,21 @@
         <?php include VIEWS_PATH . '/layouts/footer.php'; ?>
     <?php endif; ?>
     
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="/office_management/assets/js/main.js"></script>
+    <script src="/assets/js/main.js"></script>
     
     <?php if (isset($additionalJS)): ?>
-        <?php foreach ($additionalJS as $js): ?>
-            <script src="<?= $js ?>"></script>
-        <?php endforeach; ?>
+        <?php if (is_array($additionalJS)): ?>
+            <?php foreach ($additionalJS as $js): ?>
+                <?= $js ?>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <?= $additionalJS ?>
+        <?php endif; ?>
     <?php endif; ?>
 </body>
 </html>

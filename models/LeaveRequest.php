@@ -6,12 +6,14 @@
 
 class LeaveRequest extends BaseModel
 {
-    protected $table = 'leave_requests';
+    protected $table = 'LEAVE_REQUESTS';
+    protected $primaryKey = 'leave_id';
     protected $fillable = [
         'employee_id', 'leave_type', 'start_date', 'end_date', 
-        'total_days', 'reason', 'status', 'approved_by', 'approved_at', 
-        'rejection_reason', 'created_at', 'updated_at'
+        'total', 'reason_type', 'description', 'status', 'approver_id', 
+        'rejection_reason'
     ];
+    protected $timestamps = false;
     
     /**
      * Tạo đơn xin nghỉ phép
@@ -20,7 +22,7 @@ class LeaveRequest extends BaseModel
     {
         // Tính số ngày nghỉ
         if (isset($data['start_date']) && isset($data['end_date'])) {
-            $data['total_days'] = $this->calculateTotalDays($data['start_date'], $data['end_date']);
+            $data['total'] = $this->calculateTotalDays($data['start_date'], $data['end_date']);
         }
         
         // Set default status
@@ -62,7 +64,7 @@ class LeaveRequest extends BaseModel
             $params[] = $status;
         }
         
-        $sql .= " ORDER BY created_at DESC";
+        $sql .= " ORDER BY start_date DESC";
         
         return $this->db->fetchAll($sql, $params);
     }
@@ -80,20 +82,20 @@ class LeaveRequest extends BaseModel
      */
     public function getWithEmployee($leaveId = null)
     {
-        $sql = "SELECT lr.*, e.first_name, e.last_name, e.employee_code, e.department, e.position,
-                       u.username as approved_by_username
+        $sql = "SELECT lr.*, e.fullname, e.department, e.position,
+                       u.email as approved_by_email
                 FROM {$this->table} lr
-                LEFT JOIN employees e ON lr.employee_id = e.id
-                LEFT JOIN users u ON lr.approved_by = u.id";
+                LEFT JOIN EMPLOYEES e ON lr.employee_id = e.employee_id
+                LEFT JOIN USERS u ON lr.approver_id = u.user_id";
         
         $params = [];
         
         if ($leaveId) {
-            $sql .= " WHERE lr.id = ?";
+            $sql .= " WHERE lr.leave_id = ?";
             $params[] = $leaveId;
             return $this->db->fetch($sql, $params);
         } else {
-            $sql .= " ORDER BY lr.created_at DESC";
+            $sql .= " ORDER BY lr.start_date DESC";
             return $this->db->fetchAll($sql, $params);
         }
     }
@@ -128,9 +130,9 @@ class LeaveRequest extends BaseModel
      */
     public function getByDateRange($startDate, $endDate)
     {
-        $sql = "SELECT lr.*, e.first_name, e.last_name, e.employee_code
+        $sql = "SELECT lr.*, e.fullname
                 FROM {$this->table} lr
-                LEFT JOIN employees e ON lr.employee_id = e.id
+                LEFT JOIN EMPLOYEES e ON lr.employee_id = e.employee_id
                 WHERE lr.start_date <= ? AND lr.end_date >= ?
                 AND lr.status = 'approved'
                 ORDER BY lr.start_date ASC";
@@ -151,7 +153,7 @@ class LeaveRequest extends BaseModel
         $params = [$employeeId, $endDate, $startDate, $endDate, $startDate];
         
         if ($excludeId) {
-            $sql .= " AND id != ?";
+            $sql .= " AND leave_id != ?";
             $params[] = $excludeId;
         }
         
@@ -170,9 +172,9 @@ class LeaveRequest extends BaseModel
                     SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_requests,
                     SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_requests,
                     SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_requests,
-                    SUM(CASE WHEN status = 'approved' THEN total_days ELSE 0 END) as total_approved_days
+                    SUM(CASE WHEN status = 'approved' THEN total ELSE 0 END) as total_approved_days
                 FROM {$this->table} 
-                WHERE YEAR(created_at) = ?";
+                WHERE YEAR(start_date) = ?";
         
         $params = [$year];
         
@@ -190,11 +192,11 @@ class LeaveRequest extends BaseModel
     public function getByLeaveType($leaveType, $year = null)
     {
         $year = $year ?: date('Y');
-        $sql = "SELECT lr.*, e.first_name, e.last_name, e.employee_code
+        $sql = "SELECT lr.*, e.fullname
                 FROM {$this->table} lr
-                LEFT JOIN employees e ON lr.employee_id = e.id
-                WHERE lr.leave_type = ? AND YEAR(lr.created_at) = ?
-                ORDER BY lr.created_at DESC";
+                LEFT JOIN EMPLOYEES e ON lr.employee_id = e.employee_id
+                WHERE lr.leave_type = ? AND YEAR(lr.start_date) = ?
+                ORDER BY lr.start_date DESC";
         
         return $this->db->fetchAll($sql, [$leaveType, $year]);
     }
@@ -204,10 +206,10 @@ class LeaveRequest extends BaseModel
      */
     public function getCalendarData($startDate, $endDate)
     {
-        $sql = "SELECT lr.id, lr.start_date, lr.end_date, lr.leave_type, lr.status,
-                       e.first_name, e.last_name, e.employee_code
+        $sql = "SELECT lr.leave_id, lr.start_date, lr.end_date, lr.leave_type, lr.status,
+                       e.fullname, e.employee_id
                 FROM {$this->table} lr
-                LEFT JOIN employees e ON lr.employee_id = e.id
+                LEFT JOIN EMPLOYEES e ON lr.employee_id = e.employee_id
                 WHERE lr.start_date <= ? AND lr.end_date >= ?
                 AND lr.status = 'approved'
                 ORDER BY lr.start_date ASC";

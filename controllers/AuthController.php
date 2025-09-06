@@ -47,7 +47,7 @@ class AuthController extends BaseController
             
             // Validate input
             $validator = $this->validate($data, [
-                'username' => 'required',
+                'username' => 'required|email',
                 'password' => 'required'
             ]);
             
@@ -66,9 +66,9 @@ class AuthController extends BaseController
             
             // Login successful
             Session::login(
-                $user['id'],
-                $user['role'],
-                $user['username'],
+                $user['user_id'],
+                'default', // Default role
+                $user['email'],
                 $user['email']
             );
             

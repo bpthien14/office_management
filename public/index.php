@@ -8,19 +8,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Định nghĩa các hằng số
-define('ROOT_PATH', dirname(__DIR__));
-define('APP_PATH', ROOT_PATH);
-define('CONFIG_PATH', APP_PATH . '/config');
-define('CORE_PATH', APP_PATH . '/core');
-define('MODELS_PATH', APP_PATH . '/models');
-define('CONTROLLERS_PATH', APP_PATH . '/controllers');
-define('VIEWS_PATH', APP_PATH . '/views');
-define('ASSETS_PATH', APP_PATH . '/assets');
-define('UPLOADS_PATH', APP_PATH . '/uploads');
-
-// Load cấu hình
-require_once CONFIG_PATH . '/config.php';
+// Load cấu hình trước
+require_once dirname(__DIR__) . '/config/config.php';
 
 // Autoloader đơn giản
 spl_autoload_register(function ($class) {

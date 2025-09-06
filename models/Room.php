@@ -6,11 +6,20 @@
 
 class Room extends BaseModel
 {
-    protected $table = 'rooms';
+    protected $table = 'ROOMS';
+    protected $primaryKey = 'room_id';
     protected $fillable = [
         'room_name', 'room_code', 'capacity', 'location', 'floor',
         'equipment', 'description', 'status', 'hourly_rate'
     ];
+    
+    /**
+     * Lấy phòng họp theo ID
+     */
+    public function getById($id)
+    {
+        return $this->find($id);
+    }
     
     /**
      * Tạo phòng họp mới
@@ -109,14 +118,14 @@ class Room extends BaseModel
     public function getWithCurrentBooking($roomId = null)
     {
         $sql = "SELECT r.*, rb.id as booking_id, rb.booking_date, rb.start_time, rb.end_time,
-                       rb.purpose, e.first_name, e.last_name, e.employee_code, e.department
+                       rb.purpose, e.fullname, e.department
                 FROM {$this->table} r
                 LEFT JOIN room_booking rb ON r.id = rb.room_id 
                     AND rb.booking_date = CURDATE() 
                     AND rb.status = 'confirmed'
                     AND rb.start_time <= TIME(NOW()) 
                     AND rb.end_time >= TIME(NOW())
-                LEFT JOIN employees e ON rb.employee_id = e.id";
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id";
         
         $params = [];
         
@@ -157,9 +166,9 @@ class Room extends BaseModel
      */
     public function getBookingSchedule($roomId, $startDate, $endDate)
     {
-        $sql = "SELECT rb.*, e.first_name, e.last_name, e.employee_code, e.department
-                FROM room_booking rb
-                LEFT JOIN employees e ON rb.employee_id = e.id
+        $sql = "SELECT rb.*, e.fullname, e.department
+                FROM ROOM_BOOKING rb
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
                 WHERE rb.room_id = ? 
                 AND rb.booking_date >= ? 
                 AND rb.booking_date <= ?

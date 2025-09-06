@@ -5,35 +5,35 @@
  */
 
 // Cấu hình cơ bản
-define('APP_NAME', 'Office Management System');
-define('APP_VERSION', '1.0.0');
-define('APP_URL', 'http://localhost/office_management/public');
+if (!defined('APP_NAME')) define('APP_NAME', 'Office Management System');
+if (!defined('APP_VERSION')) define('APP_VERSION', '1.0.0');
+if (!defined('APP_URL')) define('APP_URL', 'http://localhost:8000');
 
 // Cấu hình đường dẫn
-define('ROOT_PATH', dirname(__DIR__));
-define('APP_PATH', ROOT_PATH);
-define('CONFIG_PATH', APP_PATH . '/config');
-define('CORE_PATH', APP_PATH . '/core');
-define('MODELS_PATH', APP_PATH . '/models');
-define('CONTROLLERS_PATH', APP_PATH . '/controllers');
-define('VIEWS_PATH', APP_PATH . '/views');
-define('ASSETS_PATH', APP_PATH . '/assets');
-define('UPLOADS_PATH', APP_PATH . '/uploads');
+if (!defined('ROOT_PATH')) define('ROOT_PATH', dirname(__DIR__));
+if (!defined('APP_PATH')) define('APP_PATH', ROOT_PATH);
+if (!defined('CONFIG_PATH')) define('CONFIG_PATH', APP_PATH . '/config');
+if (!defined('CORE_PATH')) define('CORE_PATH', APP_PATH . '/core');
+if (!defined('MODELS_PATH')) define('MODELS_PATH', APP_PATH . '/models');
+if (!defined('CONTROLLERS_PATH')) define('CONTROLLERS_PATH', APP_PATH . '/controllers');
+if (!defined('VIEWS_PATH')) define('VIEWS_PATH', APP_PATH . '/views');
+if (!defined('ASSETS_PATH')) define('ASSETS_PATH', APP_PATH . '/assets');
+if (!defined('UPLOADS_PATH')) define('UPLOADS_PATH', APP_PATH . '/uploads');
 
 // Cấu hình bảo mật
-define('SECRET_KEY', 'your-secret-key-here-change-in-production');
-define('CSRF_TOKEN_NAME', '_token');
+if (!defined('SECRET_KEY')) define('SECRET_KEY', 'your-secret-key-here-change-in-production');
+if (!defined('CSRF_TOKEN_NAME')) define('CSRF_TOKEN_NAME', '_token');
 
 // Cấu hình session
-define('SESSION_LIFETIME', 3600); // 1 giờ
-define('SESSION_NAME', 'office_management_session');
+if (!defined('SESSION_LIFETIME')) define('SESSION_LIFETIME', 3600); // 1 giờ
+if (!defined('SESSION_NAME')) define('SESSION_NAME', 'office_management_session');
 
 // Cấu hình upload
-define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
-define('ALLOWED_IMAGE_TYPES', ['jpg', 'jpeg', 'png', 'gif']);
+if (!defined('MAX_FILE_SIZE')) define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
+if (!defined('ALLOWED_IMAGE_TYPES')) define('ALLOWED_IMAGE_TYPES', ['jpg', 'jpeg', 'png', 'gif']);
 
 // Cấu hình phân trang
-define('ITEMS_PER_PAGE', 10);
+if (!defined('ITEMS_PER_PAGE')) define('ITEMS_PER_PAGE', 10);
 
 // Cấu hình email (nếu có)
 define('MAIL_HOST', 'smtp.gmail.com');

@@ -11,8 +11,8 @@
         <ul class="nav flex-column">
             <!-- Dashboard -->
             <li class="nav-item">
-                <a class="nav-link <?= $_SERVER['REQUEST_URI'] === '/office_management/public/dashboard' ? 'active' : '' ?>" 
-                   href="/office_management/public/dashboard">
+                <a class="nav-link <?= $_SERVER['REQUEST_URI'] === '/dashboard' ? 'active' : '' ?>" 
+                   href="/dashboard">
                     <i class="fas fa-tachometer-alt me-2"></i>
                     Dashboard
                 </a>
@@ -22,7 +22,7 @@
             <?php if (in_array($user['role'], ['admin', 'hr'])): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/employees') !== false ? 'active' : '' ?>" 
-                   href="/office_management/public/employees">
+                   href="/employees">
                     <i class="fas fa-users me-2"></i>
                     Quản lý nhân viên
                 </a>
@@ -32,7 +32,7 @@
             <!-- Leave Management -->
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/leaves') !== false ? 'active' : '' ?>" 
-                   href="/office_management/public/leaves">
+                   href="/leaves">
                     <i class="fas fa-calendar-alt me-2"></i>
                     Nghỉ phép
                 </a>
@@ -40,26 +40,38 @@
             
             <!-- Device Management -->
             <li class="nav-item">
-                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/devices') !== false ? 'active' : '' ?>" 
-                   href="/office_management/public/devices">
+                <a class="nav-link dropdown-toggle <?= strpos($_SERVER['REQUEST_URI'] ?? '', '/devices') !== false ? 'active' : '' ?>" 
+                   href="#" data-bs-toggle="dropdown">
                     <i class="fas fa-laptop me-2"></i>
                     Thiết bị
                 </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/devices">Danh sách thiết bị</a></li>
+                    <li><a class="dropdown-item" href="/devices/borrow">Mượn thiết bị</a></li>
+                    <li><a class="dropdown-item" href="/devices/return">Trả thiết bị</a></li>
+                    <li><a class="dropdown-item" href="/devices/approve">Duyệt mượn thiết bị</a></li>
+                </ul>
             </li>
             
             <!-- Room Management -->
             <li class="nav-item">
-                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/rooms') !== false ? 'active' : '' ?>" 
-                   href="/office_management/public/rooms">
+                <a class="nav-link dropdown-toggle <?= strpos($_SERVER['REQUEST_URI'] ?? '', '/rooms') !== false ? 'active' : '' ?>"
+                   href="#" data-bs-toggle="dropdown">
                     <i class="fas fa-door-open me-2"></i>
                     Phòng họp
                 </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/rooms">Danh sách phòng họp</a></li>
+                    <li><a class="dropdown-item" href="/rooms/booking">Đặt phòng họp</a></li>
+                    <li><a class="dropdown-item" href="/rooms/calendar">Lịch phòng họp</a></li>
+                    <li><a class="dropdown-item" href="/rooms/approve">Duyệt đặt phòng họp</a></li>
+                </ul>
             </li>
             
             <!-- Reports -->
             <?php if (in_array($user['role'], ['admin', 'hr'])): ?>
             <li class="nav-item">
-                <a class="nav-link" href="/office_management/public/reports">
+                <a class="nav-link" href="/reports">
                     <i class="fas fa-chart-bar me-2"></i>
                     Báo cáo
                 </a>
@@ -68,7 +80,7 @@
             
             <!-- Settings -->
             <li class="nav-item">
-                <a class="nav-link" href="/office_management/public/settings">
+                <a class="nav-link" href="/settings">
                     <i class="fas fa-cog me-2"></i>
                     Cài đặt
                 </a>

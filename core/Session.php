@@ -183,4 +183,15 @@ class Session
     {
         self::destroy();
     }
+    
+    /**
+     * Lấy CSRF token
+     */
+    public static function getCSRFToken()
+    {
+        if (!self::has('csrf_token')) {
+            self::set('csrf_token', bin2hex(random_bytes(32)));
+        }
+        return self::get('csrf_token');
+    }
 }

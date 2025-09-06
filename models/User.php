@@ -6,11 +6,13 @@
 
 class User extends BaseModel
 {
-    protected $table = 'users';
+    protected $table = 'USERS';
+    protected $primaryKey = 'user_id';
     protected $fillable = [
-        'username', 'email', 'password', 'role', 'is_active', 'last_login'
+        'email', 'password', 'status'
     ];
     protected $hidden = ['password'];
+    protected $timestamps = false;
     
     /**
      * Tạo user mới
@@ -23,8 +25,7 @@ class User extends BaseModel
         }
         
         // Set default values
-        $data['role'] = $data['role'] ?? 'employee';
-        $data['is_active'] = $data['is_active'] ?? 1;
+        $data['status'] = $data['status'] ?? 'active';
         
         return $this->create($data);
     }
@@ -32,18 +33,25 @@ class User extends BaseModel
     /**
      * Xác thực đăng nhập
      */
-    public function authenticate($username, $password)
+    public function authenticate($email, $password)
     {
-        $user = $this->where('username', $username);
+        $user = $this->where('email', $email);
         
-        if (!$user || !$user['is_active']) {
+        if (!$user || !$user['status'] || $user['status'] !== 'active') {
             return false;
         }
         
-        if (password_verify($password, $user['password'])) {
-            // Cập nhật last_login
-            $this->update($user['id'], ['last_login' => date('Y-m-d H:i:s')]);
-            return $user;
+        // Check if password is hashed or plain text
+        if (password_get_info($user['password'])['algo'] !== null) {
+            // Password is hashed
+            if (password_verify($password, $user['password'])) {
+                return $user;
+            }
+        } else {
+            // Password is plain text
+            if ($user['password'] === $password) {
+                return $user;
+            }
         }
         
         return false;
@@ -75,20 +83,11 @@ class User extends BaseModel
     }
     
     /**
-     * Kiểm tra username đã tồn tại chưa
+     * Kiểm tra email đã tồn tại chưa (thay thế usernameExists)
      */
-    public function usernameExists($username, $excludeId = null)
+    public function usernameExists($email, $excludeId = null)
     {
-        $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE username = ?";
-        $params = [$username];
-        
-        if ($excludeId) {
-            $sql .= " AND {$this->primaryKey} != ?";
-            $params[] = $excludeId;
-        }
-        
-        $result = $this->db->fetch($sql, $params);
-        return $result['count'] > 0;
+        return $this->emailExists($email, $excludeId);
     }
     
     /**
@@ -123,8 +122,8 @@ class User extends BaseModel
     {
         $user = $this->find($userId);
         if ($user) {
-            $newStatus = $user['is_active'] ? 0 : 1;
-            return $this->update($userId, ['is_active' => $newStatus]);
+            $newStatus = $user['status'] === 'active' ? 'inactive' : 'active';
+            return $this->update($userId, ['status' => $newStatus]);
         }
         return false;
     }
@@ -135,20 +134,13 @@ class User extends BaseModel
     public function getStats()
     {
         $total = $this->count();
-        $active = $this->count('is_active', 1);
+        $active = $this->count('status', 'active');
         $inactive = $total - $active;
-        
-        $roles = $this->db->fetchAll("
-            SELECT role, COUNT(*) as count 
-            FROM {$this->table} 
-            GROUP BY role
-        ");
         
         return [
             'total' => $total,
             'active' => $active,
-            'inactive' => $inactive,
-            'roles' => $roles
+            'inactive' => $inactive
         ];
     }
 }

@@ -212,7 +212,7 @@ $content = '
                         <div class="col-md-6">
                             <h6 class="text-muted mb-3">Yêu cầu chờ duyệt</h6>
                             <div class="list-group">
-                                <a href="/office_management/public/leaves/approve" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="/leaves/approve" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                     <span>
                                         <i class="fas fa-calendar-alt me-2"></i>
                                         Đơn xin nghỉ phép
@@ -221,7 +221,7 @@ $content = '
                                         ' . count($pending_requests["leave_requests"] ?? []) . '
                                     </span>
                                 </a>
-                                <a href="/office_management/public/rooms/approve" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="/rooms/approve" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                     <span>
                                         <i class="fas fa-door-open me-2"></i>
                                         Đặt phòng họp

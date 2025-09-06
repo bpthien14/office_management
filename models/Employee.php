@@ -6,11 +6,10 @@
 
 class Employee extends BaseModel
 {
-    protected $table = 'employees';
+    protected $table = 'EMPLOYEES';
     protected $fillable = [
-        'user_id', 'employee_code', 'first_name', 'last_name', 'email', 
-        'phone', 'address', 'position', 'department', 'salary', 
-        'hire_date', 'birth_date', 'gender', 'avatar', 'status'
+        'user_id', 'fullname', 'phone', 'position', 'department', 
+        'supervisor_id', 'work_history', 'image_path', 'role'
     ];
     
     /**
@@ -24,7 +23,7 @@ class Employee extends BaseModel
         }
         
         // Set default values
-        $data['status'] = $data['status'] ?? 'active';
+        // Note: EMPLOYEES table doesn't have status column
         
         return $this->create($data);
     }
@@ -92,7 +91,7 @@ class Employee extends BaseModel
      */
     public function searchEmployees($searchTerm, $page = 1, $perPage = 10)
     {
-        $searchColumns = ['first_name', 'last_name', 'employee_code', 'email', 'phone'];
+        $searchColumns = ['fullname', 'employee_code', 'email', 'phone'];
         return $this->search($searchTerm, $searchColumns, $page, $perPage);
     }
     
@@ -101,10 +100,10 @@ class Employee extends BaseModel
      */
     public function getWithUser($employeeId)
     {
-        $sql = "SELECT e.*, u.username, u.role, u.is_active, u.last_login 
+        $sql = "SELECT e.*, u.email, u.status 
                 FROM {$this->table} e 
-                LEFT JOIN users u ON e.user_id = u.id 
-                WHERE e.id = ?";
+                LEFT JOIN users u ON e.user_id = u.user_id 
+                WHERE e.employee_id = ?";
         
         return $this->db->fetch($sql, [$employeeId]);
     }
@@ -116,10 +115,10 @@ class Employee extends BaseModel
     {
         $offset = ($page - 1) * $perPage;
         
-        $sql = "SELECT e.*, u.username, u.role, u.is_active, u.last_login 
+        $sql = "SELECT e.*, u.email, u.status 
                 FROM {$this->table} e 
-                LEFT JOIN users u ON e.user_id = u.id 
-                ORDER BY e.created_at DESC 
+                LEFT JOIN users u ON e.user_id = u.user_id 
+                ORDER BY e.employee_id DESC 
                 LIMIT {$perPage} OFFSET {$offset}";
         
         $data = $this->db->fetchAll($sql);
@@ -148,8 +147,8 @@ class Employee extends BaseModel
     public function getStats()
     {
         $total = $this->count();
-        $active = $this->count('status', 'active');
-        $inactive = $total - $active;
+        $active = $total; // All employees are considered active
+        $inactive = 0;
         
         $departments = $this->db->fetchAll("
             SELECT department, COUNT(*) as count 
@@ -179,10 +178,9 @@ class Employee extends BaseModel
      */
     public function getRetiringSoon()
     {
+        // Note: birth_date column doesn't exist in EMPLOYEES table
         $sql = "SELECT * FROM {$this->table} 
-                WHERE status = 'active' 
-                AND DATEDIFF(DATE_ADD(birth_date, INTERVAL 60 YEAR), CURDATE()) <= 365 
-                ORDER BY birth_date ASC";
+                ORDER BY employee_id ASC";
         
         return $this->db->fetchAll($sql);
     }
@@ -192,9 +190,10 @@ class Employee extends BaseModel
      */
     public function getNewEmployees()
     {
+        // Note: hire_date column doesn't exist in EMPLOYEES table
         $sql = "SELECT * FROM {$this->table} 
-                WHERE hire_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) 
-                ORDER BY hire_date DESC";
+                ORDER BY employee_id DESC 
+                LIMIT 10";
         
         return $this->db->fetchAll($sql);
     }

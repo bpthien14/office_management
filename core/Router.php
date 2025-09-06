@@ -31,12 +31,23 @@ class Router
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         
         // Loại bỏ base path nếu có
-        $basePath = str_replace('/public', '', dirname($_SERVER['SCRIPT_NAME']));
-        if ($basePath !== '/') {
-            $uri = str_replace($basePath, '', $uri);
+        $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+        if ($scriptDir !== '/') {
+            $uri = str_replace($scriptDir, '', $uri);
+        }
+        
+        // Loại bỏ /office_management nếu có trong URL
+        if (strpos($uri, '/office_management') === 0) {
+            $uri = str_replace('/office_management', '', $uri);
         }
         
         $uri = $uri ?: '/';
+        
+        // Xử lý assets requests
+        if (strpos($uri, '/assets/') === 0) {
+            $this->handleAssets($uri);
+            return;
+        }
         
         // Tìm route phù hợp
         $route = $this->findRoute($method, $uri);
@@ -150,6 +161,37 @@ class Router
             
             // Gọi method với parameters
             call_user_func_array([$controller, $methodName], $params);
+        }
+    }
+    
+    /**
+     * Xử lý assets requests
+     */
+    private function handleAssets($uri)
+    {
+        $assetPath = ROOT_PATH . $uri;
+        
+        if (file_exists($assetPath)) {
+            // Set appropriate content type
+            $extension = pathinfo($assetPath, PATHINFO_EXTENSION);
+            $mimeTypes = [
+                'css' => 'text/css',
+                'js' => 'application/javascript',
+                'png' => 'image/png',
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'gif' => 'image/gif',
+                'svg' => 'image/svg+xml'
+            ];
+            
+            if (isset($mimeTypes[$extension])) {
+                header('Content-Type: ' . $mimeTypes[$extension]);
+            }
+            
+            readfile($assetPath);
+        } else {
+            http_response_code(404);
+            echo 'Asset not found';
         }
     }
     

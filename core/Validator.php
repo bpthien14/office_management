@@ -49,6 +49,14 @@ class Validator
     }
     
     /**
+     * Kiểm tra có lỗi validation không
+     */
+    public function fails()
+    {
+        return !empty($this->errors);
+    }
+    
+    /**
      * Validate một field cụ thể
      */
     private function validateField($field, $value, $rules)
@@ -211,7 +219,11 @@ class Validator
      */
     public static function validateCSRF($token)
     {
-        return hash_equals(Session::get(CSRF_TOKEN_NAME), $token);
+        $sessionToken = Session::get(CSRF_TOKEN_NAME);
+        if (!$sessionToken || !$token) {
+            return false;
+        }
+        return hash_equals($sessionToken, $token);
     }
     
     /**

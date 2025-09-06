@@ -6,9 +6,9 @@
 
 return [
     'host' => 'localhost',
-    'dbname' => 'office_management',
+    'dbname' => 'OfficeManagementDB',
     'username' => 'root',
-    'password' => '',
+    'password' => 'root',
     'charset' => 'utf8mb4',
     'options' => [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

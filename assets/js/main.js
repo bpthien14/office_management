@@ -178,7 +178,7 @@ function initializeAjax() {
         if (xhr.status === 401) {
             showNotification('Phiên đăng nhập đã hết hạn', 'warning');
             setTimeout(function() {
-                window.location.href = '/office_management/public/login';
+                window.location.href = '/login';
             }, 2000);
         } else if (xhr.status === 403) {
             showNotification('Bạn không có quyền thực hiện hành động này', 'error');
@@ -376,19 +376,25 @@ function showConfirmModal(title, message, callback) {
  * Initialize date pickers
  */
 function initializeDatePickers() {
-    $('.datepicker').datepicker({
-        format: 'dd/mm/yyyy',
-        autoclose: true,
-        todayHighlight: true,
-        language: 'vi'
-    });
+    // Check if datepicker is available
+    if (typeof $.fn.datepicker !== 'undefined') {
+        $('.datepicker').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+            language: 'vi'
+        });
+    }
     
-    $('.datetimepicker').datetimepicker({
-        format: 'dd/mm/yyyy hh:ii',
-        autoclose: true,
-        todayHighlight: true,
-        language: 'vi'
-    });
+    // Check if datetimepicker is available
+    if (typeof $.fn.datetimepicker !== 'undefined') {
+        $('.datetimepicker').datetimepicker({
+            format: 'dd/mm/yyyy hh:ii',
+            autoclose: true,
+            todayHighlight: true,
+            language: 'vi'
+        });
+    }
 }
 
 /**

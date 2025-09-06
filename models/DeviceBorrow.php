@@ -6,11 +6,13 @@
 
 class DeviceBorrow extends BaseModel
 {
-    protected $table = 'device_borrow';
+    protected $table = 'DEVICE_BORROW';
+    protected $primaryKey = 'borrow_id';
     protected $fillable = [
-        'device_id', 'employee_id', 'borrow_date', 'return_date',
-        'borrow_reason', 'return_condition', 'status', 'notes'
+        'employee_id', 'borrow_date', 'expected_return_date', 'return_date',
+        'status', 'approver_id'
     ];
+    protected $timestamps = false;
     
     /**
      * Tạo record mượn thiết bị
@@ -25,13 +27,22 @@ class DeviceBorrow extends BaseModel
     }
     
     /**
+     * Tạo chi tiết mượn thiết bị
+     */
+    public function createBorrowDetail($borrowId, $deviceId, $note = '')
+    {
+        $sql = "INSERT INTO DEVICE_BORROW_DETAILS (borrow_id, device_id, note) VALUES (?, ?, ?)";
+        return $this->db->execute($sql, [$borrowId, $deviceId, $note]);
+    }
+    
+    /**
      * Lấy lịch sử mượn của nhân viên
      */
     public function getByEmployee($employeeId, $status = null)
     {
-        $sql = "SELECT db.*, d.device_name, d.device_type, d.brand, d.model, d.serial_number
+        $sql = "SELECT db.*, d.device_name, d.description, d.quantity
                 FROM {$this->table} db
-                LEFT JOIN devices d ON db.device_id = d.id
+                LEFT JOIN DEVICES d ON db.device_id = d.device_id
                 WHERE db.employee_id = ?";
         
         $params = [$employeeId];
@@ -51,10 +62,13 @@ class DeviceBorrow extends BaseModel
      */
     public function getByDevice($deviceId)
     {
-        $sql = "SELECT db.*, e.first_name, e.last_name, e.employee_code, e.department
+        $sql = "SELECT db.*, bd.device_id, d.device_name, d.description, d.quantity,
+                       e.fullname, e.department, bd.note
                 FROM {$this->table} db
-                LEFT JOIN employees e ON db.employee_id = e.id
-                WHERE db.device_id = ?
+                LEFT JOIN DEVICE_BORROW_DETAILS bd ON db.borrow_id = bd.borrow_id
+                LEFT JOIN DEVICES d ON bd.device_id = d.device_id
+                LEFT JOIN EMPLOYEES e ON db.employee_id = e.employee_id
+                WHERE bd.device_id = ?
                 ORDER BY db.borrow_date DESC";
         
         return $this->db->fetchAll($sql, [$deviceId]);
@@ -65,11 +79,11 @@ class DeviceBorrow extends BaseModel
      */
     public function getCurrentlyBorrowed()
     {
-        $sql = "SELECT db.*, d.device_name, d.device_type, d.brand, d.model,
-                       e.first_name, e.last_name, e.employee_code, e.department
+        $sql = "SELECT db.*, d.device_name, d.description, d.quantity,
+                       e.fullname, e.department
                 FROM {$this->table} db
-                LEFT JOIN devices d ON db.device_id = d.id
-                LEFT JOIN employees e ON db.employee_id = e.id
+                LEFT JOIN DEVICES d ON db.device_id = d.device_id
+                LEFT JOIN EMPLOYEES e ON db.employee_id = e.employee_id
                 WHERE db.return_date IS NULL AND db.status = 'borrowed'
                 ORDER BY db.borrow_date ASC";
         
@@ -123,12 +137,12 @@ class DeviceBorrow extends BaseModel
      */
     public function getOverdueBorrows($daysOverdue = 7)
     {
-        $sql = "SELECT db.*, d.device_name, d.device_type, d.brand, d.model,
-                       e.first_name, e.last_name, e.employee_code, e.department,
+        $sql = "SELECT db.*, d.device_name, d.description, d.quantity,
+                       e.fullname, e.department,
                        DATEDIFF(CURDATE(), db.borrow_date) as days_borrowed
                 FROM {$this->table} db
-                LEFT JOIN devices d ON db.device_id = d.id
-                LEFT JOIN employees e ON db.employee_id = e.id
+                LEFT JOIN DEVICES d ON db.device_id = d.device_id
+                LEFT JOIN EMPLOYEES e ON db.employee_id = e.employee_id
                 WHERE db.return_date IS NULL 
                 AND db.status = 'borrowed'
                 AND DATEDIFF(CURDATE(), db.borrow_date) > ?
@@ -142,12 +156,12 @@ class DeviceBorrow extends BaseModel
      */
     public function getTopBorrowers($limit = 10)
     {
-        $sql = "SELECT e.first_name, e.last_name, e.employee_code, e.department,
+        $sql = "SELECT e.fullname, e.department,
                        COUNT(db.id) as borrow_count,
                        SUM(CASE WHEN db.status = 'borrowed' THEN 1 ELSE 0 END) as current_borrows
                 FROM {$this->table} db
-                LEFT JOIN employees e ON db.employee_id = e.id
-                GROUP BY db.employee_id, e.first_name, e.last_name, e.employee_code, e.department
+                LEFT JOIN EMPLOYEES e ON db.employee_id = e.employee_id
+                GROUP BY db.employee_id, e.fullname, e.department
                 ORDER BY borrow_count DESC
                 LIMIT ?";
         
@@ -159,12 +173,12 @@ class DeviceBorrow extends BaseModel
      */
     public function getMostBorrowedDevices($limit = 10)
     {
-        $sql = "SELECT d.device_name, d.device_type, d.brand, d.model,
-                       COUNT(db.id) as borrow_count,
+        $sql = "SELECT d.device_name, d.description, d.quantity,
+                       COUNT(db.borrow_id) as borrow_count,
                        SUM(CASE WHEN db.status = 'borrowed' THEN 1 ELSE 0 END) as current_borrows
                 FROM {$this->table} db
-                LEFT JOIN devices d ON db.device_id = d.id
-                GROUP BY db.device_id, d.device_name, d.device_type, d.brand, d.model
+                LEFT JOIN DEVICES d ON db.device_id = d.device_id
+                GROUP BY db.device_id, d.device_name, d.description, d.quantity
                 ORDER BY borrow_count DESC
                 LIMIT ?";
         
@@ -195,14 +209,48 @@ class DeviceBorrow extends BaseModel
      */
     public function getByDateRange($startDate, $endDate)
     {
-        $sql = "SELECT db.*, d.device_name, d.device_type, d.brand, d.model,
-                       e.first_name, e.last_name, e.employee_code, e.department
+        $sql = "SELECT db.*, d.device_name, d.description, d.quantity,
+                       e.fullname, e.department
                 FROM {$this->table} db
-                LEFT JOIN devices d ON db.device_id = d.id
-                LEFT JOIN employees e ON db.employee_id = e.id
+                LEFT JOIN DEVICES d ON db.device_id = d.device_id
+                LEFT JOIN EMPLOYEES e ON db.employee_id = e.employee_id
                 WHERE db.borrow_date >= ? AND db.borrow_date <= ?
                 ORDER BY db.borrow_date DESC";
         
         return $this->db->fetchAll($sql, [$startDate, $endDate]);
+    }
+    
+    /**
+     * Lấy danh sách thiết bị đang được mượn
+     */
+    public function getBorrowedDevices()
+    {
+        $sql = "SELECT db.*, bd.device_id, d.device_name, d.description, d.quantity,
+                       e.fullname, e.department, bd.note
+                FROM {$this->table} db
+                INNER JOIN DEVICE_BORROW_DETAILS bd ON db.borrow_id = bd.borrow_id
+                INNER JOIN DEVICES d ON bd.device_id = d.device_id
+                LEFT JOIN EMPLOYEES e ON db.employee_id = e.employee_id
+                WHERE db.return_date IS NULL AND db.status = 'approved'
+                ORDER BY db.borrow_date ASC";
+        
+        return $this->db->fetchAll($sql);
+    }
+    
+    /**
+     * Lấy danh sách đơn mượn thiết bị chờ duyệt
+     */
+    public function getPendingBorrows()
+    {
+        $sql = "SELECT db.*, bd.device_id, d.device_name, d.description, d.quantity,
+                       e.fullname, e.department, bd.note
+                FROM {$this->table} db
+                LEFT JOIN DEVICE_BORROW_DETAILS bd ON db.borrow_id = bd.borrow_id
+                LEFT JOIN DEVICES d ON bd.device_id = d.device_id
+                LEFT JOIN EMPLOYEES e ON db.employee_id = e.employee_id
+                WHERE db.status = 'pending'
+                ORDER BY db.borrow_date ASC";
+        
+        return $this->db->fetchAll($sql);
     }
 }

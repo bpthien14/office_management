@@ -14,20 +14,21 @@ $content = '
                         </div>
                         
                         <!-- Login Form -->
-                        <form method="POST" action="/office_management/public/login" id="loginForm">
+                        <form method="POST" action="/login" id="loginForm">
                             <input type="hidden" name="_token" value="' . $csrf_token . '">
                             
-                            <!-- Username -->
+                            <!-- Email -->
                             <div class="mb-3">
                                 <label for="username" class="form-label">
-                                    <i class="fas fa-user me-1"></i>
-                                    Tên đăng nhập
+                                    <i class="fas fa-envelope me-1"></i>
+                                    Email đăng nhập
                                 </label>
-                                <input type="text" 
+                                <input type="email" 
                                        class="form-control" 
                                        id="username" 
                                        name="username" 
                                        value="' . (isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '') . '"
+                                       placeholder="Nhập email của bạn"
                                        required 
                                        autofocus>
                             </div>
@@ -76,7 +77,7 @@ $content = '
                         <div class="text-center mt-4">
                             <p class="mb-0">
                                 Chưa có tài khoản? 
-                                <a href="/office_management/public/register" class="text-decoration-none">
+                                <a href="/register" class="text-decoration-none">
                                     Đăng ký ngay
                                 </a>
                             </p>
@@ -93,11 +94,11 @@ $content = '
                                     <div class="row">
                                         <div class="col-6">
                                             <small class="text-muted">Admin:</small><br>
-                                            <code>admin / admin123</code>
+                                            <code>ngo.phuc@example.com / 123456</code>
                                         </div>
                                         <div class="col-6">
                                             <small class="text-muted">HR:</small><br>
-                                            <code>hr / hr123</code>
+                                            <code>tran.nam@example.com / 123456</code>
                                         </div>
                                     </div>
                                 </div>
@@ -109,42 +110,55 @@ $content = '
         </div>
     </div>
 </div>
-
-<script>
-$(document).ready(function() {
-    // Toggle password visibility
-    $("#togglePassword").click(function() {
-        const passwordField = $("#password");
-        const icon = $(this).find("i");
-        
-        if (passwordField.attr("type") === "password") {
-            passwordField.attr("type", "text");
-            icon.removeClass("fa-eye").addClass("fa-eye-slash");
-        } else {
-            passwordField.attr("type", "password");
-            icon.removeClass("fa-eye-slash").addClass("fa-eye");
-        }
-    });
-    
-    // Form validation
-    $("#loginForm").on("submit", function(e) {
-        const username = $("#username").val().trim();
-        const password = $("#password").val();
-        
-        if (!username || !password) {
-            e.preventDefault();
-            alert("Vui lòng nhập đầy đủ thông tin đăng nhập");
-            return false;
-        }
-        
-        // Show loading state
-        const submitBtn = $(this).find("button[type=submit]");
-        submitBtn.prop("disabled", true);
-        submitBtn.html("<i class=\"fas fa-spinner fa-spin me-2\"></i>Đang đăng nhập...");
-    });
-});
-</script>
 ';
+
+// Additional JavaScript
+$additionalJS = ['<script>
+// Wait for jQuery to be loaded
+function initLoginPage() {
+    if (typeof $ === "undefined") {
+        // jQuery not loaded yet, wait and try again
+        setTimeout(initLoginPage, 100);
+        return;
+    }
+    
+    $(document).ready(function() {
+        // Toggle password visibility
+        $("#togglePassword").click(function() {
+            const passwordField = $("#password");
+            const icon = $(this).find("i");
+            
+            if (passwordField.attr("type") === "password") {
+                passwordField.attr("type", "text");
+                icon.removeClass("fa-eye").addClass("fa-eye-slash");
+            } else {
+                passwordField.attr("type", "password");
+                icon.removeClass("fa-eye-slash").addClass("fa-eye");
+            }
+        });
+        
+        // Form validation
+        $("#loginForm").on("submit", function(e) {
+            const username = $("#username").val().trim();
+            const password = $("#password").val();
+            
+            if (!username || !password) {
+                e.preventDefault();
+                alert("Vui lòng nhập đầy đủ thông tin đăng nhập");
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = $(this).find("button[type=submit]");
+            submitBtn.prop("disabled", true);
+            submitBtn.html("<i class=\"fas fa-spinner fa-spin me-2\"></i>Đang đăng nhập...");
+        });
+    });
+}
+
+// Start initialization
+initLoginPage();
+</script>'];
 
 // Include main layout
 include VIEWS_PATH . '/layouts/main.php';

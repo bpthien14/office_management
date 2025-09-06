@@ -6,12 +6,62 @@
 
 class RoomBooking extends BaseModel
 {
-    protected $table = 'room_booking';
+    protected $table = 'ROOM_BOOKING';
+    protected $primaryKey = 'booking_id';
+    protected $timestamps = false;
     protected $fillable = [
         'room_id', 'employee_id', 'booking_date', 'start_time', 'end_time',
-        'purpose', 'attendees', 'status', 'approved_by', 'approved_at',
+        'purpose', 'attendees', 'status', 'approver_id', 'approved_at',
         'rejection_reason', 'notes'
     ];
+    
+    /**
+     * Lấy tất cả đặt phòng họp
+     */
+    public function getAll()
+    {
+        $sql = "SELECT rb.*, r.room_name, e.fullname, e.department
+                FROM {$this->table} rb
+                LEFT JOIN ROOMS r ON rb.room_id = r.room_id
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
+                ORDER BY rb.booking_date DESC, rb.start_time DESC";
+        
+        return $this->db->fetchAll($sql);
+    }
+    
+    /**
+     * Lấy danh sách đặt phòng chờ duyệt
+     */
+    public function getPendingBookings()
+    {
+        $sql = "SELECT rb.*, r.room_name, e.fullname, e.department
+                FROM {$this->table} rb
+                LEFT JOIN ROOMS r ON rb.room_id = r.room_id
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
+                WHERE rb.status = 'pending'
+                ORDER BY rb.booking_date ASC, rb.start_time ASC";
+        
+        return $this->db->fetchAll($sql);
+    }
+    
+    /**
+     * Lấy dữ liệu cho calendar
+     */
+    public function getCalendarData($startDate = null, $endDate = null)
+    {
+        $startDate = $startDate ?: date('Y-m-d', strtotime('monday this week'));
+        $endDate = $endDate ?: date('Y-m-d', strtotime('sunday this week'));
+        
+        $sql = "SELECT rb.*, r.room_name, r.type, r.capacity, r.location,
+                       e.fullname, e.department
+                FROM {$this->table} rb
+                LEFT JOIN ROOMS r ON rb.room_id = r.room_id
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
+                WHERE rb.booking_date >= ? AND rb.booking_date <= ?
+                ORDER BY rb.booking_date ASC, rb.start_time ASC";
+        
+        return $this->db->fetchAll($sql, [$startDate, $endDate]);
+    }
     
     /**
      * Tạo đặt phòng họp mới
@@ -51,9 +101,9 @@ class RoomBooking extends BaseModel
      */
     public function getByRoom($roomId, $date = null)
     {
-        $sql = "SELECT rb.*, e.first_name, e.last_name, e.employee_code, e.department
+        $sql = "SELECT rb.*, e.fullname, e.department
                 FROM {$this->table} rb
-                LEFT JOIN employees e ON rb.employee_id = e.id
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
                 WHERE rb.room_id = ?";
         
         $params = [$roomId];
@@ -68,21 +118,6 @@ class RoomBooking extends BaseModel
         return $this->db->fetchAll($sql, $params);
     }
     
-    /**
-     * Lấy đặt phòng chờ duyệt
-     */
-    public function getPendingBookings()
-    {
-        $sql = "SELECT rb.*, r.room_name, r.room_code, r.capacity, r.location,
-                       e.first_name, e.last_name, e.employee_code, e.department
-                FROM {$this->table} rb
-                LEFT JOIN rooms r ON rb.room_id = r.id
-                LEFT JOIN employees e ON rb.employee_id = e.id
-                WHERE rb.status = 'pending'
-                ORDER BY rb.created_at ASC";
-        
-        return $this->db->fetchAll($sql);
-    }
     
     /**
      * Lấy đặt phòng đã xác nhận
@@ -90,10 +125,10 @@ class RoomBooking extends BaseModel
     public function getConfirmedBookings($date = null)
     {
         $sql = "SELECT rb.*, r.room_name, r.room_code, r.capacity, r.location,
-                       e.first_name, e.last_name, e.employee_code, e.department
+                       e.fullname, e.department
                 FROM {$this->table} rb
                 LEFT JOIN rooms r ON rb.room_id = r.id
-                LEFT JOIN employees e ON rb.employee_id = e.id
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
                 WHERE rb.status = 'confirmed'";
         
         $params = [];
@@ -172,10 +207,10 @@ class RoomBooking extends BaseModel
     public function getDailySchedule($date)
     {
         $sql = "SELECT rb.*, r.room_name, r.room_code, r.capacity, r.location,
-                       e.first_name, e.last_name, e.employee_code, e.department
+                       e.fullname, e.department
                 FROM {$this->table} rb
                 LEFT JOIN rooms r ON rb.room_id = r.id
-                LEFT JOIN employees e ON rb.employee_id = e.id
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
                 WHERE rb.booking_date = ? 
                 AND rb.status = 'confirmed'
                 ORDER BY r.room_name ASC, rb.start_time ASC";
@@ -189,10 +224,10 @@ class RoomBooking extends BaseModel
     public function getWeeklySchedule($startDate, $endDate)
     {
         $sql = "SELECT rb.*, r.room_name, r.room_code, r.capacity, r.location,
-                       e.first_name, e.last_name, e.employee_code, e.department
+                       e.fullname, e.department
                 FROM {$this->table} rb
                 LEFT JOIN rooms r ON rb.room_id = r.id
-                LEFT JOIN employees e ON rb.employee_id = e.id
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
                 WHERE rb.booking_date >= ? 
                 AND rb.booking_date <= ?
                 AND rb.status = 'confirmed'
@@ -295,14 +330,14 @@ class RoomBooking extends BaseModel
         $startDate = $startDate ?: date('Y-m-01');
         $endDate = $endDate ?: date('Y-m-t');
         
-        $sql = "SELECT e.first_name, e.last_name, e.employee_code, e.department,
+        $sql = "SELECT e.fullname, e.department,
                        COUNT(rb.id) as booking_count
                 FROM {$this->table} rb
-                LEFT JOIN employees e ON rb.employee_id = e.id
+                LEFT JOIN EMPLOYEES e ON rb.employee_id = e.employee_id
                 WHERE rb.booking_date >= ? 
                 AND rb.booking_date <= ?
                 AND rb.status = 'confirmed'
-                GROUP BY rb.employee_id, e.first_name, e.last_name, e.employee_code, e.department
+                GROUP BY rb.employee_id, e.fullname, e.department
                 ORDER BY booking_count DESC
                 LIMIT ?";
         

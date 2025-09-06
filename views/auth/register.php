@@ -14,7 +14,7 @@ $content = '
                         </div>
                         
                         <!-- Register Form -->
-                        <form method="POST" action="/office_management/public/register" id="registerForm">
+                        <form method="POST" action="/register" id="registerForm">
                             <input type="hidden" name="_token" value="' . $csrf_token . '">
                             
                             <div class="row">
@@ -119,7 +119,7 @@ $content = '
                         <div class="text-center mt-4">
                             <p class="mb-0">
                                 Đã có tài khoản? 
-                                <a href="/office_management/public/login" class="text-decoration-none">
+                                <a href="/login" class="text-decoration-none">
                                     Đăng nhập ngay
                                 </a>
                             </p>

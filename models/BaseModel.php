@@ -275,4 +275,23 @@ abstract class BaseModel
     {
         return $this->db->rollback();
     }
+    
+    /**
+     * Lấy tất cả bản ghi
+     */
+    public function getAll()
+    {
+        $sql = "SELECT * FROM {$this->table}";
+        
+        // Only add ORDER BY if timestamps is true and table has created_at column
+        if ($this->timestamps) {
+            // Check if table has created_at column
+            $columns = $this->db->query("SHOW COLUMNS FROM {$this->table} LIKE 'created_at'");
+            if ($columns && $columns->rowCount() > 0) {
+                $sql .= " ORDER BY created_at DESC";
+            }
+        }
+        
+        return $this->db->fetchAll($sql);
+    }
 }

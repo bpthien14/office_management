@@ -1,0 +1,181 @@
+# Office Management System - Cursor Rules
+
+## Project Overview
+This is a PHP-based Office Management System using MVC architecture with MySQL database. The system manages employees, leave requests, device borrowing, and room booking.
+
+## Tech Stack
+- **Backend**: PHP 8.4+ with custom MVC framework
+- **Database**: MySQL 8.0+
+- **Frontend**: Bootstrap 5.3, jQuery 3.7, Font Awesome 6.4
+- **Server**: PHP built-in server (development)
+
+## Code Standards
+
+### PHP Standards
+- Use PSR-4 autoloading
+- Follow PSR-12 coding style
+- Use type hints for parameters and return types
+- Use strict typing: `declare(strict_types=1);`
+- Use meaningful variable and function names
+- Add PHPDoc comments for all public methods
+- Use `private` for internal methods, `public` for API methods
+- Use `protected` for methods that subclasses might override
+
+### Database Standards
+- Use prepared statements for all database queries
+- Use PDO for database operations
+- Always validate and sanitize input data
+- Use transactions for multi-step operations
+- Use proper error handling for database operations
+
+### Security Standards
+- Always use CSRF protection for forms
+- Validate all user inputs
+- Use password hashing (password_hash/password_verify)
+- Sanitize output to prevent XSS
+- Use proper session management
+- Implement proper authentication and authorization
+
+### MVC Architecture
+- **Models**: Handle data operations and business logic
+- **Views**: Handle presentation and user interface
+- **Controllers**: Handle user input and coordinate between models and views
+- Keep controllers thin, models fat
+- Use dependency injection where possible
+
+## File Structure
+```
+/
+├── config/           # Configuration files
+├── controllers/      # MVC Controllers
+├── core/            # Core framework classes
+├── models/          # MVC Models
+├── public/          # Web root (index.php, .htaccess)
+├── views/           # MVC Views
+└── assets/          # Static assets (CSS, JS, images)
+```
+
+## Database Schema
+- **USERS**: user_id, email, password, status
+- **EMPLOYEES**: employee_id, fullname, phone, position, department, supervisor_id, user_id, work_history, image_path, role
+- **DEVICES**: device_id, device_name, description, quantity
+- **ROOMS**: room_id, room_name, type, capacity, location, status
+- **LEAVE_REQUESTS**: leave_id, employee_id, leave_type, start_date, end_date, details, total, reason_type, description, status, approver_id
+- **DEVICE_BORROW**: borrow_id, employee_id, borrow_date, expected_return_date, return_date, status, approver_id
+- **ROOM_BOOKING**: booking_id, employee_id, room_id, booking_date, start_time, end_time, purpose, status, approver_id
+
+## Common Patterns
+
+### Error Handling
+```php
+try {
+    // Operation
+} catch (Exception $e) {
+    $this->flash('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+    $this->redirect('/previous-page');
+}
+```
+
+### Database Operations
+```php
+// Use prepared statements
+$stmt = $this->db->prepare("SELECT * FROM table WHERE id = ?");
+$stmt->execute([$id]);
+$result = $stmt->fetch();
+```
+
+### Form Validation
+```php
+$validator = $this->validate($data, [
+    'field' => 'required|email|min:3'
+]);
+
+if ($validator->fails()) {
+    $this->flash('error', 'Dữ liệu không hợp lệ');
+    return $this->redirect('/form');
+}
+```
+
+### Session Management
+```php
+// Check login
+if (!Session::isLoggedIn()) {
+    $this->redirect('/login');
+}
+
+// Set flash message
+Session::flash('success', 'Thao tác thành công');
+```
+
+## Code Quality Rules
+
+### 1. Always Check for Errors
+- Check database connection before queries
+- Validate user input before processing
+- Handle exceptions gracefully
+- Log errors for debugging
+
+### 2. Security First
+- Never trust user input
+- Always use CSRF tokens
+- Validate file uploads
+- Use proper authentication checks
+
+### 3. Performance
+- Use indexes on frequently queried columns
+- Limit database queries
+- Use pagination for large datasets
+- Cache frequently accessed data
+
+### 4. Maintainability
+- Write self-documenting code
+- Use consistent naming conventions
+- Keep functions small and focused
+- Add comments for complex logic
+
+## Common Issues to Avoid
+
+### Database Issues
+- Don't use `status` column if it doesn't exist in table
+- Always check table structure before writing queries
+- Use proper column names (user_id not id)
+- Handle NULL values properly
+
+### JavaScript Issues
+- Wait for jQuery to load before using $
+- Use proper event delegation
+- Handle AJAX errors gracefully
+- Don't mix PHP and JavaScript syntax
+
+### PHP Issues
+- Don't use undefined constants
+- Always check if variables exist before using
+- Use proper string concatenation
+- Handle array keys that might not exist
+
+## Testing Guidelines
+- Test all CRUD operations
+- Test authentication and authorization
+- Test form validation
+- Test error handling
+- Test with different user roles
+
+## Documentation
+- Update README.md when adding new features
+- Document API endpoints
+- Add inline comments for complex logic
+- Keep changelog updated
+
+## Vietnamese Language Support
+- All user-facing text should be in Vietnamese
+- Use proper Vietnamese character encoding (UTF-8)
+- Follow Vietnamese naming conventions for variables
+- Use Vietnamese error messages
+
+## When Making Changes
+1. Check existing code patterns
+2. Follow the established architecture
+3. Test thoroughly
+4. Update documentation if needed
+5. Consider backward compatibility
+6. Check for security implications
