@@ -1,0 +1,420 @@
+/* Responsive Styles for Office Management System */
+
+/* Extra Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .container-fluid {
+        max-width: 1400px;
+    }
+    
+    .card-columns {
+        column-count: 4;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .container-fluid {
+        max-width: 1200px;
+    }
+    
+    .card-columns {
+        column-count: 3;
+    }
+    
+    .sidebar {
+        width: 220px;
+    }
+    
+    .main-content-with-sidebar {
+        margin-left: 220px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .container-fluid {
+        max-width: 960px;
+    }
+    
+    .card-columns {
+        column-count: 2;
+    }
+    
+    .sidebar {
+        width: 200px;
+    }
+    
+    .main-content-with-sidebar {
+        margin-left: 200px;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .timeline-marker {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .container-fluid {
+        max-width: 720px;
+    }
+    
+    .card-columns {
+        column-count: 1;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        width: 250px;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content-with-sidebar {
+        margin-left: 0;
+    }
+    
+    .navbar-toggler {
+        display: block;
+    }
+    
+    .navbar-collapse {
+        background-color: rgba(0, 0, 0, 0.1);
+        margin-top: 0.5rem;
+        border-radius: 0.25rem;
+        padding: 1rem;
+    }
+    
+    .auth-container {
+        padding: 1rem 0;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .timeline-marker {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .event-item {
+        padding: 0.75rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    .card-columns {
+        column-count: 1;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        width: 100%;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content-with-sidebar {
+        margin-left: 0;
+    }
+    
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+    
+    .navbar-toggler {
+        display: block;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .navbar-collapse {
+        background-color: rgba(0, 0, 0, 0.1);
+        margin-top: 0.5rem;
+        border-radius: 0.25rem;
+        padding: 1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .navbar-nav .nav-link:last-child {
+        border-bottom: none;
+    }
+    
+    .auth-container {
+        padding: 0.5rem 0;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn {
+        font-size: 0.875rem;
+    }
+    
+    .form-control {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .form-label {
+        font-size: 0.875rem;
+    }
+    
+    .timeline-marker {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .timeline-item {
+        margin-bottom: 1rem;
+    }
+    
+    .event-item {
+        padding: 0.5rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.75rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .alert {
+        font-size: 0.875rem;
+        padding: 0.75rem;
+    }
+    
+    .dropdown-menu {
+        font-size: 0.875rem;
+    }
+    
+    .dropdown-item {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    /* Hide some elements on mobile */
+    .d-none-mobile {
+        display: none !important;
+    }
+    
+    /* Show mobile-specific elements */
+    .d-mobile {
+        display: block !important;
+    }
+    
+    /* Mobile-specific spacing */
+    .mb-mobile-2 {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .mt-mobile-2 {
+        margin-top: 0.5rem !important;
+    }
+    
+    /* Mobile form adjustments */
+    .form-row .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Mobile card adjustments */
+    .card-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+    
+    /* Mobile button groups */
+    .btn-group-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn-group-mobile .btn {
+        width: 100%;
+    }
+}
+
+/* Print responsive styles */
+@media print {
+    .sidebar,
+    .navbar,
+    .btn,
+    .alert,
+    .dropdown,
+    .pagination {
+        display: none !important;
+    }
+    
+    .main-content-with-sidebar {
+        margin-left: 0 !important;
+    }
+    
+    .container-fluid {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .card-body {
+        padding: 1rem !important;
+    }
+    
+    .table {
+        font-size: 0.75rem !important;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.25rem !important;
+    }
+    
+    .text-muted {
+        color: #6c757d !important;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .card {
+        box-shadow: 0 0.1rem 1rem 0 rgba(58, 59, 69, 0.1);
+    }
+    
+    .btn {
+        border-width: 0.5px;
+    }
+    
+    .form-control {
+        border-width: 0.5px;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+    .auth-container {
+        padding: 0.5rem 0;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Dark mode support (if implemented) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --light-color: #2d3748;
+        --dark-color: #e2e8f0;
+    }
+    
+    body {
+        background-color: #1a202c;
+        color: #e2e8f0;
+    }
+    
+    .card {
+        background-color: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .table {
+        background-color: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .form-control {
+        background-color: #4a5568;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .form-control:focus {
+        background-color: #4a5568;
+        border-color: var(--primary-color);
+        color: #e2e8f0;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .btn:hover {
+        transform: none !important;
+    }
+    
+    .event-item:hover {
+        transform: none !important;
+    }
+}
